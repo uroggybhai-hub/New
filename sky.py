@@ -2,12 +2,11 @@ import asyncio
 import numpy as np
 import struct
 from scipy import signal as scipy_signal
-from pyrogram import Client, filters, idle
+from pyrogram import Client, filters
 from pyrogram.types import Message
 from pyrogram.enums import ChatType
-from pytgcalls import PyTgCalls
-from pytgcalls.types import AudioParameters, AudioQuality
-from pytgcalls.types.input_stream import AudioStream, InputAudioStream
+from pytgcalls import PyTgCalls, idle
+from pytgcalls.types import MediaStream, AudioQuality
 from pytgcalls.exceptions import GroupCallNotFound, NoActiveGroupCall
 
 # ============= 🔧 APNI DETAILS YAHAN DALO =============
@@ -85,6 +84,7 @@ class ExtremeAudioProcessor:
             
             # 2. 5-BAND EQUALIZER
             eq = config["equalizer"]
+            nyquist = SAMPLE_RATE / 2
             # Simple EQ using frequency bands
             # Low pass for bass
             if eq[0] != 1.0:
@@ -299,15 +299,11 @@ async def start_system(client, message: Message):
     config["active"] = True
 
     try:
-        # Join listener to source group
+        # Join listener to source group (mic input via MediaStream)
         await calls_listener.join_group_call(
             config["source_chat"],
-            AudioStream(
-                InputAudioStream(
-                    sample_rate=SAMPLE_RATE,
-                    channels=CHANNELS,
-                    frame_duration=FRAME_DURATION,
-                )
+            MediaStream(
+                audio_parameters=AudioQuality.STUDIO,
             )
         )
         config["listener_in_vc"] = True
@@ -315,12 +311,8 @@ async def start_system(client, message: Message):
         # Join blaster to target group
         await calls_blaster.join_group_call(
             config["target_chat"],
-            AudioStream(
-                InputAudioStream(
-                    sample_rate=SAMPLE_RATE,
-                    channels=CHANNELS,
-                    frame_duration=FRAME_DURATION,
-                )
+            MediaStream(
+                audio_parameters=AudioQuality.STUDIO,
             )
         )
         config["blaster_in_vc"] = True
@@ -411,12 +403,12 @@ async def help_cmd(client, message: Message):
     )
 
 # ============= 🎤 AUDIO RELAY =============
-@calls_listener.on_kicked()
+@calls_listener.on_kicked
 async def on_kicked_handler(client, chat_id):
     print(f"❌ Listener kicked from {chat_id}")
     config["listener_in_vc"] = False
 
-@calls_blaster.on_kicked()
+@calls_blaster.on_kicked
 async def on_kicked_blaster(client, chat_id):
     print(f"❌ Blaster kicked from {chat_id}")
     config["blaster_in_vc"] = False

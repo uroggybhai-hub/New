@@ -2,9 +2,9 @@ import asyncio
 import numpy as np
 import struct
 from scipy import signal as scipy_signal
-from pyrogram import Client, filters
-from pyrogram.types import Message
-from pyrogram.enums import ChatType
+from hydrogram import Client, filters
+from hydrogram.types import Message
+from hydrogram.enums import ChatType
 from pytgcalls import PyTgCalls, idle
 from pytgcalls.types import MediaStream, AudioQuality
 

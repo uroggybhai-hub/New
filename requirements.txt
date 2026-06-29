@@ -1,5 +1,18 @@
-pyrogram==2.0.106
-pytgcalls==3.0.0.dev24
-tgcrypto
-numpy
-scipy
+ ============================================================
+# sky.py ke liye requirements
+# Python >= 3.10 zaroori hai
+# Install: pip install -r requirements.txt
+# ============================================================
+
+# Telegram MTProto client
+pyrogram>=2.0.106
+
+# Telegram Calls (py-tgcalls) - latest stable
+py-tgcalls[pyrogram]>=2.2.12
+
+# Crypto (pyrogram ke liye zaroori)
+TgCrypto>=1.2.5
+
+# Audio processing
+numpy>=1.24.0
+scipy>=1.11.0
